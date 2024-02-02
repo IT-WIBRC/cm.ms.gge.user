@@ -3,6 +3,7 @@ import { UseCase } from "../../../core/domain/UseCase";
 import { CreateUserDTO } from "./CreateUserDTO";
 import { Either, Result, left, right } from "../../../core/logic/Result";
 import { UserEmail } from "../../domain/ValueObjects/userEmail";
+import { UserUsername } from "../../domain/ValueObjects/userUsername";
 import { UserPassword } from "../../domain/ValueObjects/userPassword";
 import { User } from "../../domain/user";
 import { IUserRepo } from "../../repos";
@@ -24,12 +25,13 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
   }
 
   async execute (req: CreateUserDTO): Promise<Response> {
-    const { firstName, lastName } = req;
+    const { firstName, lastName, username, email, password } = req;
 
-    const emailOrError = UserEmail.create(req.email);
-    const passwordOrError = UserPassword.create({ value: req.password });
+    const emailOrError = UserEmail.create(email);
+    const passwordOrError = UserPassword.create({ value: password });
+    const usernameOrError = UserUsername.create(username);
 
-    const combinedPropsResult = Result.combine([ emailOrError, passwordOrError ]);
+    const combinedPropsResult = Result.combine([ emailOrError, passwordOrError, usernameOrError ]);
 
     if (combinedPropsResult.isFailure) {
       return left(Result.fail<void>(combinedPropsResult.error)) as Response;
@@ -40,6 +42,7 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
       password: passwordOrError.getValue(), 
       firstName, 
       lastName,
+      username,
       isActived: false,
       createdAt: new Date().toUTCString(),
     });

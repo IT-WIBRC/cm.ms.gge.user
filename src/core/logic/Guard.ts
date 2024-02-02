@@ -27,6 +27,21 @@ export interface IGuardResult {
         return { succeeded: true }
       }
     }
+
+    public static againstInvalidUsername (argument: any, argumentName: string): IGuardResult {
+      const guardResult = Guard.againstNullOrUndefined(argument, argumentName);
+      
+      if (!guardResult.succeeded) {
+        return { succeeded: false, message: guardResult.message };
+      }
+
+      const wellFormedUsername = /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/.test(argument);
+      if (!wellFormedUsername) {
+        return { succeeded: false, message: `${argumentName} is ill-formed` }
+      } else {
+        return { succeeded: true }
+      }
+    }
   
     public static againstNullOrUndefinedBulk(args: GuardArgumentCollection): IGuardResult {
       for (const { argument, argumentName } of args) {

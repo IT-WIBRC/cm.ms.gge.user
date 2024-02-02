@@ -12,14 +12,6 @@ export namespace CreateUserErrors {
     }
   }
 
-  export class FacebookTokenInvalid extends Result<UseCaseError> {
-    constructor () {
-      super(false, {
-        message: `The facebook token used to attempt to create an account not genuine.`
-      } as UseCaseError)
-    } 
-  }
-
   export class GoogleTokenInvalid extends Result<UseCaseError> {
     constructor () {
       super(false, {

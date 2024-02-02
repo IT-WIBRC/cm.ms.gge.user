@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, AfterInsert, AfterUpdate, AfterRemove, AfterSoftRemove, BeforeInsert, BeforeUpdate } from "typeorm";
-import { dispatchEventsCallback } from "./eventUtils";
+import { dispatchEventsCallback } from "../eventUtils";
 
 enum Event {
     USER_ID = "user_id",

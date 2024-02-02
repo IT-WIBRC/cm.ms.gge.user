@@ -23,10 +23,4 @@ app.use(morgan('combined'))
 
 app.use('/api/v1', v1Router)
 
-// New api versions can go here
-
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`[App]: Server listening on ${process.env.PORT || 5000}`)
-})
-
 export { app };

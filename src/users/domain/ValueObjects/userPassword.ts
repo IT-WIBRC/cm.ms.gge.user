@@ -14,7 +14,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     return this.props.value;
   }
 
-  private constructor (props) {
+  private constructor (props: UserPasswordProps) {
     super(props)
   }
 
@@ -34,7 +34,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
   }
 
   private bcryptCompare (plainText: string, hashed: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       bcrypt.compare(plainText, hashed, (err, compareResult) => {
         if (err) return resolve(false);
         return resolve(compareResult);
@@ -65,8 +65,8 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     })
   }
 
-  public static isAppropriateLength (value: string): boolean {
-    return value.length >= 8;
+  public static hasSuitableForm (value: string): boolean {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
   }
 
   public static create (props: UserPasswordProps): Result<UserPassword> {
@@ -77,9 +77,9 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     } else {
 
       if (!props.hashed) {
-        if (!this.isAppropriateLength(props.value)
+        if (!this.hasSuitableForm(props.value)
         ) {
-          return Result.fail<UserPassword>('Password doesnt meet criteria [1 uppercase, 1 lowercase, one digit or symbol and 8 chars min].');
+          return Result.fail<UserPassword>("Password doesn't meet criteria [1 uppercase, 1 lowercase, one digit or symbol and 8 chars min].");
         }
       }
 

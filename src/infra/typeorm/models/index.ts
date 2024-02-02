@@ -7,7 +7,11 @@ import { isProduction } from "../../../config";
 const { username, password, database, host, dialect, port } = databaseCredential;
 
 const models = fs.readdirSync(path.resolve(__dirname, "./"))
-.filter((t) => ~t.indexOf('.ts') && !~t.indexOf("index") && !~t.indexOf(".map"));
+.filter((t) => ~t.indexOf('.ts') && !~t.indexOf("index") && !~t.indexOf(".map"))
+.map(model => require(__dirname + "/" + model));
+
+const modelNames = models.map((model) => Object.keys(model)[0]);
+const modelClass = models.map((model) => Object.values<any>(model)[0]);
 
 const connection = new DataSource({
     type: dialect,
@@ -18,7 +22,12 @@ const connection = new DataSource({
     host,
     synchronize: isProduction ? true : false,
     logging: isProduction ? false : true,
-    entities: models,
+    entities: modelClass,
 });
 
-export { connection,  models };
+const modelsAsObject: Record<string, object> = {};
+modelNames.forEach((model, index) => {
+    modelsAsObject[model] = modelClass[index]; 
+});
+
+export { connection,  modelsAsObject };
