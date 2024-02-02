@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, AfterInsert, AfterUpdate, AfterRemove, AfterSoftRemove, BeforeInsert, BeforeUpdate } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, AfterInsert, AfterUpdate, AfterRemove, AfterSoftRemove } from "typeorm";
 import { dispatchEventsCallback } from "../eventUtils";
 
 enum Event {
@@ -6,7 +6,7 @@ enum Event {
 };
 
 @Entity({
-    name: "t_user"
+    name: "t_user",
 })
 export class User {
     @PrimaryGeneratedColumn("uuid")
@@ -62,11 +62,11 @@ export class User {
     @Column({ name: "created_at" })
     declare createdAt?: string;
 
-    @BeforeInsert()
-    @BeforeUpdate()
-    async hasPasswordAtCreation(): Promise<void> {
-      if (this.password) this.password = "1234";
-    }
+    @Column({ 
+      type: "uuid",
+      unique: true,
+    })
+    declare mediaId?: string;
 
     @AfterInsert()
     dispatchInsertEvent() {

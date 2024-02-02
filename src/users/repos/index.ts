@@ -1,7 +1,7 @@
 import { UserRepo, IUserRepo } from "./userRepo";
-import { modelsAsObject } from "../../infra/typeorm/models";
+import { typeOrmModelRepositories } from "../../infra/typeorm/models";
 
-const { User } = modelsAsObject;
-const userRepo = new UserRepo(User);
+const { User: TypeOrmUserRepository} = typeOrmModelRepositories;
+const userRepo = new UserRepo(TypeOrmUserRepository);
 
 export { userRepo, IUserRepo }

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { databaseCredential } from "../config/config";
-import { DataSource } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { isProduction } from "../../../config";
 
 const { username, password, database, host, dialect, port } = databaseCredential;
@@ -25,9 +25,13 @@ const connection = new DataSource({
     entities: modelClass,
 });
 
-const modelsAsObject: Record<string, object> = {};
+type TypeOrmModelRepository =  {
+  [key: string]: Repository<unknown>;
+}
+
+const typeOrmModelRepositories: TypeOrmModelRepository = {};
 modelNames.forEach((model, index) => {
-    modelsAsObject[model] = modelClass[index]; 
+    typeOrmModelRepositories[model] = connection.getRepository(modelClass[index]); 
 });
 
-export { connection,  modelsAsObject };
+export { connection,  typeOrmModelRepositories };

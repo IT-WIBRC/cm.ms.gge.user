@@ -2,6 +2,7 @@
 import { User } from "../domain/user";
 import { UserMap } from "../mappers/UserMap";
 import { UserEmail } from "../domain/ValueObjects/userEmail";
+import { Repository } from "typeorm";
 
 export interface IUserRepo {
   findUserByEmail(email: UserEmail): Promise<User>;
@@ -11,62 +12,58 @@ export interface IUserRepo {
 }
 
 export class UserRepo implements IUserRepo {
-  private models: any;
+  private model: Repository<any>;
 
-  constructor (models: any) {
-    this.models = models;
+  constructor (model: Repository<any>) {
+    this.model = model;
   }
 
   private createBaseQuery () {
-    const { models } = this;
     return {
       where: {},
-      include: [
-        { model: models.Trader, as: 'Trader', required: false }
-      ]
     }
   }
 
   public async findUserByUsername (username: string): Promise<User> {
     const baseQuery = this.createBaseQuery();
     baseQuery.where['username'] = username;
-    const user = await this.models.BaseUser.findOne(baseQuery);
+    const user = await this.model.findOne(baseQuery);
     if (!!user === true) return user;
     return null;
   }
 
   public async findUserByEmail(email: UserEmail): Promise<User> {
     const baseQuery = this.createBaseQuery();
-    baseQuery.where['user_email'] = email.value.toString();
-    const user = await this.models.BaseUser.findOne(baseQuery);
+    baseQuery.where['email'] = email.value.toString();
+    const user = await this.model.findOne(baseQuery);
     if (!!user === true) return user;
     return null;
   }
 
   public async exists (email: UserEmail): Promise<boolean> {
     const baseQuery = this.createBaseQuery();
-    baseQuery.where['user_email'] = email.value.toString();
-    const user = await this.models.BaseUser.findOne(baseQuery);
+    baseQuery.where['email'] = email.value.toString();
+    const user = await this.model.findOne(baseQuery);
     return !!user === true;
   }
 
   public async save (user: User): Promise<void> {
-    const BaseUserModel = this.models.BaseUser;
+    const UserModel = this.model;
     const exists = await this.exists(user.email);
     const rawUser = UserMap.toPersistence(user);
     
     try {
       if (!exists) {
         // Create new
-        await BaseUserModel.create(rawUser);
+        await UserModel.create(rawUser);
       } 
       
       else {
         // Save old
-        const sequelizeUserInstance = await BaseUserModel.findOne({ 
-          where: { user_email: user.email.value }
+        const TypeOrmUserInstance = await UserModel.findOne({ 
+          where: { email: user.email.value }
         })
-        await sequelizeUserInstance.update(rawUser);
+        await TypeOrmUserInstance.update(rawUser);
       }
     } catch (err) {
       console.log(err);
